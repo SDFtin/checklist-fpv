@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Checklist FPV">
+<meta name="theme-color" content="#020a05">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Checklist FPV</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+/* Couleurs : --bg fond, --main trait principal, --hi titres, --txt texte des lignes, --dim texte éteint,
+   --line filets, --off segments vides, --warn alerte, --ok prêt, --tick case cochée */
+body{--bg:#020a05;--main:#3dff7a;--hi:#b8ffcf;--txt:#3dff7a;--dim:#237a3e;--line:#14522a;--off:#0b2a15;--warn:#ffcc33;--ok:#b8ffcf;--tick:#3dff7a}
+body.p2{--bg:#0a0d03;--main:#b9f227;--hi:#e6ff9c;--txt:#b9f227;--dim:#667d1c;--line:#3d4d10;--off:#1d2508;--warn:#ff7a2e;--ok:#e6ff9c;--tick:#b9f227}
+body.p3{--bg:#03090d;--main:#3fe0ff;--hi:#c2f5ff;--txt:#3fe0ff;--dim:#22718a;--line:#124757;--off:#09232c;--warn:#ff5a6e;--ok:#c2f5ff;--tick:#3fe0ff}
+body.p4{--bg:#101826;--main:#4C8FD6;--hi:#F2A541;--txt:#dbe6f5;--dim:#4a6184;--line:#27405f;--off:#1b2a40;--warn:#F2A541;--ok:#8fd0ff;--tick:#F2A541}
+body{background:var(--bg);color:var(--main);font-family:Menlo,Consolas,'Courier New',monospace;
+  min-height:100vh;-webkit-text-size-adjust:100%;
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(34px + env(safe-area-inset-bottom))}
+.wrap{max-width:480px;margin:0 auto}
+button{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.title{font-size:1.15rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.color{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.color span{width:14px;height:14px;background:var(--main);transform:rotate(45deg);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--hi)}
+.drones{display:flex;gap:8px;margin:16px 0 4px}
+.drone{flex:1;padding:12px 4px;font-size:.95rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);box-shadow:inset 0 0 0 1.5px var(--off);border-radius:2px}
+.drone.on{color:var(--bg);background:var(--main);box-shadow:none}
+.tabs{display:flex;gap:6px;margin:8px 0 14px}
+.tab{flex:1;padding:10px 4px;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--dim);border-bottom:2px solid var(--off)}
+.tab.on{color:var(--main);border-bottom-color:var(--main)}
+.status{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:11px 8px;margin-bottom:12px;
+  text-align:center;color:var(--warn);
+  background:
+   linear-gradient(var(--main),var(--main)) top left/14px 2px no-repeat,linear-gradient(var(--main),var(--main)) top left/2px 14px no-repeat,
+   linear-gradient(var(--main),var(--main)) top right/14px 2px no-repeat,linear-gradient(var(--main),var(--main)) top right/2px 14px no-repeat,
+   linear-gradient(var(--main),var(--main)) bottom left/14px 2px no-repeat,linear-gradient(var(--main),var(--main)) bottom left/2px 14px no-repeat,
+   linear-gradient(var(--main),var(--main)) bottom right/14px 2px no-repeat,linear-gradient(var(--main),var(--main)) bottom right/2px 14px no-repeat}
+.status.ok{color:var(--ok)}
+.meta{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:5px;text-transform:uppercase;color:var(--dim)}
+.bar{height:12px;overflow:hidden;background:repeating-linear-gradient(90deg,var(--off) 0,var(--off) 6px,transparent 6px,transparent 9px)}
+.fill{height:100%;width:0;transition:width .3s;background:repeating-linear-gradient(90deg,var(--tick) 0,var(--tick) 6px,transparent 6px,transparent 9px)}
+.cat{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:20px 0 4px;color:var(--hi);
+  display:flex;align-items:center;gap:8px}
+.cat::after{content:'';flex:1;height:1px;background:var(--line)}
+.item{display:flex;align-items:center;gap:12px;padding:12px 2px;cursor:pointer;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;outline-offset:2px}
+.box{flex:none;width:22px;height:22px;border:1.5px solid var(--main);transform:rotate(45deg) scale(.78);transition:.15s}
+.item.done .box{background:var(--tick);border-color:var(--tick)}
+.txt{font-size:.9rem;text-transform:uppercase;letter-spacing:.04em;color:var(--txt);transition:.15s;line-height:1.25}
+.note{display:block;font-size:.68rem;color:var(--dim);letter-spacing:.03em;margin-top:2px}
+.item.done .txt{color:var(--dim)}
+.reset{display:block;width:100%;margin-top:28px;padding:14px;font-size:.85rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--main);box-shadow:inset 0 0 0 1.5px var(--main);border-radius:2px}
+.reset:active{background:var(--off)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="title">Checklist FPV</div>
+    <button class="color" id="color" aria-label="Changer de couleur"><span></span></button>
+  </div>
+
+  <div class="drones" id="drones"></div>
+  <div class="tabs">
+    <button class="tab" data-tab="depart">Départ</button>
+    <button class="tab" data-tab="retour">Retour</button>
+  </div>
+
+  <div class="status" id="status"></div>
+  <div class="meta"><span>Progression</span><span id="count"></span></div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+
+  <div id="lists"></div>
+
+  <button class="reset" id="reset">Tout décocher</button>
+</div>
+
+<script>
+// Lignes communes aux deux drones
+const COMMUN_DEPART = [
+  { label: 'Radio & énergie', items: [
+    { id: 'radio', text: 'Radio ELRS chargée' },
+    { id: 'powerbank', text: 'Batterie externe' },
+  ]},
+  { label: 'Lipos & outils', items: [
+    { id: 'sac-lipo', text: 'Sac de sécurité lipo' },
+    { id: 'testeur', text: 'Testeur de lipo' },
+    { id: 'tournevis', text: 'Tournevis + outil à hélices' },
+    { id: 'pince', text: 'Pince fine' },
+  ]},
+  { label: 'Dépannage', items: [
+    { id: 'scotch', text: 'Scotch + colliers' },
+    { id: 'vis', text: 'Vis de rechange' },
+  ]},
+  { label: 'Avant de partir', items: [
+    { id: 'telephone', text: 'Téléphone chargé' },
+    { id: 'chaise-table', text: 'Chaise + table' },
+    { id: 'eau', text: 'Eau' },
+  ]},
+];
+const retour = (video) => [
+  { label: 'Batteries', items: [
+    { id: 'r-stockage', text: 'Lipos en tension de stockage', note: '3,8 V par cellule' },
+    { id: 'r-abimees', text: 'Lipos abîmées mises de côté' },
+    { id: 'r-recharge', text: 'Radio et lunettes en charge' },
+  ]},
+  { label: 'Vidéos', items: [video] },
+  { label: 'Drone', items: [
+    { id: 'r-controle', text: 'Drone contrôlé et nettoyé', note: 'hélices, châssis, moteurs, antennes' },
+    { id: 'r-stock', text: 'Stock d\'hélices refait' },
+    { id: 'r-reparer', text: 'Réparations à faire notées' },
+  ]},
+];
+
+const drones = {
+  air75: {
+    label: 'Air75',
+    depart: [
+      { label: 'Air75', items: [
+        { id: 'drone', text: 'Air75' },
+        { id: 'lipos', text: 'Lipos 1S chargées' },
+        { id: 'chargeur', text: 'Chargeur lipo' },
+        { id: 'helices', text: 'Hélices de rechange' },
+      ]},
+      { label: 'Lunettes Skyzone', items: [
+        { id: 'lunettes', text: 'Lunettes Skyzone' },
+        { id: 'lunettes-batt', text: 'Batterie des lunettes chargée' },
+        { id: 'lunettes-ant', text: 'Antennes des lunettes' },
+        { id: 'sd', text: 'Carte SD en place', note: 'avec de la place pour le DVR' },
+      ]},
+      ...COMMUN_DEPART,
+    ],
+    retour: retour({ id: 'r-video', text: 'Carte SD importée', note: 'bouton « DVR Skyzone »' }),
+  },
+  kayoumini: {
+    label: 'Kayoumini',
+    depart: [
+      { label: 'Kayoumini', items: [
+        { id: 'drone', text: 'Kayoumini' },
+        { id: 'lipos', text: 'Lipos 2S 380 mAh XT30 chargées' },
+        { id: 'helices', text: 'Hélices de rechange' },
+      ]},
+      { label: 'Lunettes DJI', items: [
+        { id: 'lunettes', text: 'Lunettes DJI chargées' },
+        { id: 'memoire', text: 'Place libre sur la mémoire de l\'O4' },
+      ]},
+      ...COMMUN_DEPART,
+    ],
+    retour: retour({ id: 'r-video', text: 'Vidéos de l\'O4 copiées' }),
+  },
+};
+
+const STATE_KEY = 'checklist-fpv-v2';
+const VIEW_KEY = 'checklist-fpv-vue';
+const PALETTES = ['', 'p2', 'p3', 'p4'];
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+
+let state = read(STATE_KEY, {});
+let view = Object.assign({ drone: 'air75', tab: 'depart', palette: 0 }, read(VIEW_KEY, {}));
+if (!drones[view.drone]) view.drone = 'air75';
+if (view.tab !== 'retour') view.tab = 'depart';
+if (!(view.palette >= 0 && view.palette < PALETTES.length)) view.palette = 0;
+
+const dronesEl = document.getElementById('drones');
+const listsEl = document.getElementById('lists');
+
+for (const [dk, drone] of Object.entries(drones)) {
+  const b = document.createElement('button');
+  b.className = 'drone';
+  b.dataset.drone = dk;
+  b.textContent = drone.label;
+  b.addEventListener('click', () => { view.drone = dk; refresh(); });
+  dronesEl.appendChild(b);
+
+  for (const tab of ['depart', 'retour']) {
+    const wrap = document.createElement('div');
+    wrap.dataset.key = dk + '/' + tab;
+    for (const cat of drone[tab]) {
+      const h = document.createElement('div');
+      h.className = 'cat';
+      h.textContent = cat.label;
+      wrap.appendChild(h);
+      for (const it of cat.items) {
+        const key = dk + '/' + tab + '/' + it.id;
+        const row = document.createElement('div');
+        row.className = 'item' + (state[key] ? ' done' : '');
+        row.dataset.key = key;
+        row.setAttribute('role', 'checkbox');
+        row.setAttribute('aria-checked', state[key] ? 'true' : 'false');
+        row.tabIndex = 0;
+        const box = document.createElement('span'); box.className = 'box';
+        const txt = document.createElement('span'); txt.className = 'txt'; txt.textContent = it.text;
+        if (it.note) { const n = document.createElement('span'); n.className = 'note'; n.textContent = it.note; txt.appendChild(n); }
+        row.append(box, txt);
+        const toggle = () => {
+          const on = !row.classList.contains('done');
+          row.classList.toggle('done', on);
+          row.setAttribute('aria-checked', on ? 'true' : 'false');
+          if (on) state[key] = true; else delete state[key];
+          store(STATE_KEY, state);
+          refresh();
+        };
+        row.addEventListener('click', toggle);
+        row.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
+        wrap.appendChild(row);
+      }
+    }
+    listsEl.appendChild(wrap);
+  }
+}
+
+function refresh() {
+  const cur = view.drone + '/' + view.tab;
+  document.body.className = PALETTES[view.palette];
+  const bg = getComputedStyle(document.body).getPropertyValue('--bg').trim();
+  document.querySelector('meta[name="theme-color"]').content = bg;
+  document.querySelectorAll('.drone').forEach(b => b.classList.toggle('on', b.dataset.drone === view.drone));
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === view.tab));
+  let shown;
+  listsEl.querySelectorAll(':scope > div').forEach(w => {
+    const on = w.dataset.key === cur;
+    w.classList.toggle('hidden', !on);
+    if (on) shown = w;
+  });
+  const total = shown.querySelectorAll('.item').length;
+  const done = shown.querySelectorAll('.item.done').length;
+  const left = total - done;
+  document.getElementById('count').textContent = done + ' / ' + total;
+  document.getElementById('fill').style.width = (total ? done / total * 100 : 0) + '%';
+  const st = document.getElementById('status');
+  st.classList.toggle('ok', left === 0);
+  st.textContent = view.tab === 'depart'
+    ? (left ? 'Armement bloqué : ' + left + ' à vérifier' : 'Prêt à armer')
+    : (left ? 'Rangement : ' + left + ' à faire' : 'Session clôturée');
+  store(VIEW_KEY, view);
+}
+
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { view.tab = b.dataset.tab; refresh(); }));
+document.getElementById('color').addEventListener('click', () => { view.palette = (view.palette + 1) % PALETTES.length; refresh(); });
+
+// « Tout décocher » : uniquement la liste affichée (drone + onglet en cours)
+document.getElementById('reset').addEventListener('click', () => {
+  const cur = view.drone + '/' + view.tab;
+  listsEl.querySelectorAll(':scope > div').forEach(w => {
+    if (w.dataset.key !== cur) return;
+    w.querySelectorAll('.item').forEach(row => {
+      row.classList.remove('done');
+      row.setAttribute('aria-checked', 'false');
+      delete state[row.dataset.key];
+    });
+  });
+  store(STATE_KEY, state);
+  refresh();
+});
+
+refresh();
+
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
